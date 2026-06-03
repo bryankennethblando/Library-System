@@ -6,7 +6,7 @@ public class Librarian extends User
     private int adminLevel;
 
     // user sub-class constructor
-    Librarian (String userId, String name, String employeeId, int adminLevel)
+    public Librarian (String userId, String name, String employeeId, int adminLevel)
     {
         // passing the required params
         super(userId, name);

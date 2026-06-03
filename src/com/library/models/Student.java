@@ -8,7 +8,7 @@ public class Student extends User
     public void setBorrowedCount(int borrowedCount) {this.borrowedCount = borrowedCount;}
 
     // constructor
-    Student (String userId, String name)
+    public Student (String userId, String name)
     {
         // the required params for the parent class
         super(userId, name);
