@@ -2,6 +2,7 @@ package com.library.services;
 
 import java.util.*;
 import java.io.*;
+
 import com.library.models.*;
 
 public class LibraryService
@@ -15,11 +16,9 @@ public class LibraryService
     private final String booksPath = "data/book.csv";
 
     // constructor
-    public LibraryService(User user, Book book)
+    public LibraryService()
     {
-        // adding the object we get to the arraylist
-        this.user.add(user);
-        this.book.add(book);
+        // Keeps collections initialized empty, for file load inputs
     }
 
     // to add book or user object into their respective arraylist
@@ -36,7 +35,8 @@ public class LibraryService
             // to iterate to 
             for (Book b : book)
             {
-                booksData = b.getId() + "," +b.getTitle() + "," + b.getAuthor() + "," +b.isAvailable();
+                booksData = b.getId() + "," + b.getTitle() + "," + b.getAuthor() + "," + b.isAvailable() +
+                            "," + b.getBorrowerId();
 
                 // to write data in the csv file
                 writer.write(booksData);
@@ -88,7 +88,7 @@ public class LibraryService
     public void loadBooks()
     {
         String line;
-        String[] data = new String[3];
+        String[] data = new String[4];
 
         File file = new File(booksPath);
         if (!file.exists()) {return;}
@@ -103,6 +103,7 @@ public class LibraryService
                 // getting the data using indices then appending it to the objects constructor 
                 Book bookData = new Book(data[0], data[1], data[2]);
                 bookData.setAvailability(Boolean.parseBoolean(data[3]));
+                bookData.setBorrowedId(data[4]);
 
                 // adding the loaded data onto the book arraylist
                 addBook(bookData);
@@ -153,4 +154,110 @@ public class LibraryService
         }
     }
 
+    public void borrowBook(String userId, String bookId)
+    {
+        User targetUser = null;
+        Book targetBook = null;
+
+        for (User u : user)
+        {
+            if (u.getUserId().equals(userId))
+            {
+                targetUser = u;
+                break;
+            }
+        }
+
+        for (Book b : book)
+        {
+            if (b.getId().equals(bookId))
+            {
+                targetBook = b;
+                break;
+            }
+        }
+
+        // validation
+        if (targetUser == null)
+        {
+            System.out.println("Error: No user found with that userId.");
+        }
+
+        if (targetBook == null)
+        {
+            System.out.println("Erro: No book found with that bookId.");
+        }
+
+        if (targetUser instanceof Student)
+        {
+            Student s = (Student) targetUser;
+
+            if (s.getBorrowedCount() >= 3)
+            {
+                System.out.println("You've exceed the book borrowed limit.");
+                System.out.println("Return one borrowed book to be able to borrow again.");
+                return;
+            }
+
+            if (!targetBook.isAvailable())
+            {
+                System.out.println("The book you want to borrow is check out");
+            }
+
+            targetBook.setAvailability(false);
+            targetBook.setBorrowedId(userId);
+            s.setBorrowedCount(s.getBorrowedCount() + 1);
+
+            System.out.println("Success: " + targetBook.getTitle() + " is borrowed by " +
+                                s.getName());
+
+            savedBooks();
+            savedUsers();
+        }
+        else if (targetUser instanceof Librarian)
+        {
+            System.out.println("Librarians cannot borrow books under a student profile configuration.");
+        }
+    }
+
+    public void returnBook(String bookId)
+    {
+        Book targetBook = null;
+        String borrowerId = "";
+
+        for (Book b : book)
+        {
+            if (b.getId().equals(bookId))
+            {
+                targetBook = b;
+                borrowerId = b.getBorrowerId();
+                break;
+            }
+        }
+
+        for (User u : user)
+        {
+            if (u.getUserId().equals(borrowerId))
+            {
+                if (u instanceof Student)
+                {
+                    Student s = (Student) u;
+
+                    if (s.getBorrowedCount() > 0)
+                    {
+                        s.setBorrowedCount(s.getBorrowedCount() - 1);
+                    }
+                }
+                break;
+            }
+        }
+
+        targetBook.setAvailability(true);
+        targetBook.setBorrowedId("None");
+
+        System.out.println("Success: Book record updated cleanly back into stock files.");
+
+        savedBooks();
+        savedUsers();
+    }
 }
