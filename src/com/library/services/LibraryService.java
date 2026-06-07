@@ -2,6 +2,7 @@ package com.library.services;
 
 import java.util.*;
 import java.io.*;
+import javax.swing.*;
 
 import com.library.models.*;
 
@@ -25,6 +26,10 @@ public class LibraryService
     public void addUser(User u) {user.add(u);}
     public void addBook(Book b) {book.add(b);}
 
+    // getters
+    public ArrayList<Book> getBookList() {return book;}
+    public ArrayList<User> getUserList() {return user;}
+ 
     // data writting
     public void savedBooks()
     {
@@ -35,18 +40,27 @@ public class LibraryService
             // to iterate to 
             for (Book b : book)
             {
-                booksData = b.getId() + "," + b.getTitle() + "," + b.getAuthor() + "," + b.isAvailable() +
-                            "," + b.getBorrowerId();
+                booksData = b.toString();
 
                 // to write data in the csv file
                 writer.write(booksData);
                 writer.newLine();
             }
-            System.out.println("💾 Data saved successfully to data/book.csv");
+            JOptionPane.showMessageDialog(
+                null,
+                "💾 Data saved successfully to data/book.csv",
+                "System Update",
+                JOptionPane.INFORMATION_MESSAGE
+            );
         } 
         catch (IOException e) 
         {
-            System.out.println("❌ Error saving data: " + e.getMessage());
+            JOptionPane.showMessageDialog(
+                null,
+                "❌ Error saving data: " + e.getMessage(),
+                "Library Security Alert",
+                JOptionPane.ERROR_MESSAGE
+            );
             e.getStackTrace();
         }
     }
@@ -63,23 +77,31 @@ public class LibraryService
                 if (u instanceof Student)
                 {
                     Student s = (Student) u;
-                    userData = s.getRole() + "," + s.getUserId() + "," + s.getName() + "," +
-                            s.getBorrowedCount();
+                    userData = s.toCSV();
                 }
                 else if (u instanceof Librarian)
                 {
                     Librarian l = (Librarian) u;
-                    userData = l.getRole() + "," + l.getUserId() + "," + l.getName() + "," +
-                            l.getEmployeeId() + "," + l.getAdminLevel();
+                    userData = l.toCSV();
                 }
                 writer.write(userData);
                 writer.newLine();
             }
-            System.out.println("💾 Data saved successfully to data/user.csv");
+            JOptionPane.showMessageDialog(
+                null,
+                "💾 Data saved successfully to data/user.csv",
+                "System Update",
+                JOptionPane.INFORMATION_MESSAGE
+            );
         } 
         catch (IOException e) 
         {
-            System.out.println("❌ Error saving data: " + e.getMessage());
+            JOptionPane.showMessageDialog(
+                null,
+                "❌ Error saving data: " + e.getMessage(),
+                "Library Security Alert",
+                JOptionPane.ERROR_MESSAGE
+            );
             e.getStackTrace();
         }
     }

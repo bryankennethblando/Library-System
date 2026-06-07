@@ -15,7 +15,7 @@ public class Book
         this.title = title;
         this.author = author;
         this.isAvailable = true;
-        this.borrowerId = null;
+        this.borrowerId = "None";
     }
 
     // setter
@@ -33,6 +33,6 @@ public class Book
     @Override
     public String toString() 
     {
-        return id + "," + title + "," + author + "," + isAvailable;
+        return id + "," + title + "," + author + "," + isAvailable + "," + borrowerId;
     }
 }

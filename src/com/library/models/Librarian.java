@@ -21,6 +21,12 @@ public class Librarian extends User
         return "Librarian";
     }
 
+    @Override
+    public String toCSV()
+    {
+        return getRole() + "," +getUserId() + "," + getName() + "," + employeeId + "," + adminLevel; 
+    }
+
     // getters
     public String getEmployeeId() {return employeeId;}
     public int getAdminLevel() {return adminLevel;}

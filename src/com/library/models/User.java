@@ -14,6 +14,7 @@ public abstract class User
 
     // abstract method
     public abstract String getRole();
+    public abstract String toCSV();
 
     // getters
     public String getUserId() {return userId;}

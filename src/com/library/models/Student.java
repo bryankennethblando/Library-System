@@ -22,6 +22,12 @@ public class Student extends User
         return "Student";
     }
 
+    @Override
+    public String toCSV()
+    {
+        return getRole() + "," + getUserId() + "," + getName() + "," + borrowedCount;
+    }
+
     // getters
     public int getBorrowedCount() {return borrowedCount;}
 }
