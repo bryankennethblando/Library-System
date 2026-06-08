@@ -54,6 +54,4 @@ public class LoginForm extends JFrame
             this.dispose();
         });
     }
-
-    public String getUserIdField() {return userIdField.getText();}
 }

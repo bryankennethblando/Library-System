@@ -76,13 +76,11 @@ public class LibraryService
             {
                 if (u instanceof Student)
                 {
-                    Student s = (Student) u;
-                    userData = s.toCSV();
+                    userData = u.toCSV();
                 }
                 else if (u instanceof Librarian)
                 {
-                    Librarian l = (Librarian) u;
-                    userData = l.toCSV();
+                    userData = u.toCSV();
                 }
                 writer.write(userData);
                 writer.newLine();
@@ -110,7 +108,7 @@ public class LibraryService
     public void loadBooks()
     {
         String line;
-        String[] data = new String[4];
+        String[] data;
 
         File file = new File(booksPath);
         if (!file.exists()) {return;}
@@ -130,19 +128,29 @@ public class LibraryService
                 // adding the loaded data onto the book arraylist
                 addBook(bookData);
             }
-            System.out.println("💾 Data loaded successfully.");
+            JOptionPane.showMessageDialog(
+                null,
+                "💾 Data loaded successfully.",
+                "Sysstem Update",
+                JOptionPane.INFORMATION_MESSAGE
+            );
 
         }
         catch (Exception e) 
         {
-            System.out.println("❌ Failed to load the data from the previous process...." + e.getMessage());   
+            JOptionPane.showMessageDialog(
+                null,
+                "❌ Failed to load the data from the previous process...." + e.getMessage(),
+                "System Alert",
+                JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 
     public void loadUsers()
     {
         String line;
-        String[] data = new String[4];
+        String[] data;
 
         File file = new File(usersPath);
         if (!file.exists()) {return;}
@@ -168,11 +176,21 @@ public class LibraryService
 
                 }
             }
-            System.out.println("💾 Data loaded successfully.");
+            JOptionPane.showMessageDialog(
+                null,
+                "💾 Data loaded successfully.",
+                "System Update",
+                JOptionPane.INFORMATION_MESSAGE
+            );
         } 
         catch (Exception e) 
         {
-            System.out.println("❌ Failed to load the data from the previous process...." + e.getMessage()); 
+            JOptionPane.showMessageDialog(
+                null,
+                "❌ Failed to load the data from the previous process...." + e.getMessage(),
+                "System Alert",
+                JOptionPane.ERROR_MESSAGE
+            ); 
         }
     }
 
@@ -202,12 +220,24 @@ public class LibraryService
         // validation
         if (targetUser == null)
         {
-            System.out.println("Error: No user found with that userId.");
+            JOptionPane.showMessageDialog(
+                null, 
+                "Error: No User found with that userId",
+                "System Alert",
+                JOptionPane.ERROR_MESSAGE
+            );
+            return;
         }
 
         if (targetBook == null)
         {
-            System.out.println("Erro: No book found with that bookId.");
+            JOptionPane.showMessageDialog(
+                null, 
+                "Error: No Book found with that bookId",
+                "System Alert",
+                JOptionPane.ERROR_MESSAGE
+            );
+            return;
         }
 
         if (targetUser instanceof Student)
@@ -216,29 +246,51 @@ public class LibraryService
 
             if (s.getBorrowedCount() >= 3)
             {
-                System.out.println("You've exceed the book borrowed limit.");
-                System.out.println("Return one borrowed book to be able to borrow again.");
+
+                JOptionPane.showMessageDialog(
+                    null,
+                    "You've exceed the book borrowed limit" +
+                    "\nReturn one book to be able to borrow again.",
+                    "System Notice",
+                    JOptionPane.INFORMATION_MESSAGE
+                );
                 return;
             }
 
             if (!targetBook.isAvailable())
             {
-                System.out.println("The book you want to borrow is check out");
+                JOptionPane.showMessageDialog(
+                    null,
+                    "The book you want to borrow is currently unavailable",
+                    "System Notice",
+                    JOptionPane.INFORMATION_MESSAGE
+                );
+                return;
             }
 
             targetBook.setAvailability(false);
             targetBook.setBorrowedId(userId);
             s.setBorrowedCount(s.getBorrowedCount() + 1);
 
-            System.out.println("Success: " + targetBook.getTitle() + " is borrowed by " +
-                                s.getName());
+            JOptionPane.showMessageDialog(
+                null,
+                "Success: " + targetBook.getTitle() + " is borrowed by " +
+                                s.getName(),
+                "Confirmation Success",
+                JOptionPane.INFORMATION_MESSAGE
+            );
 
             savedBooks();
             savedUsers();
         }
         else if (targetUser instanceof Librarian)
         {
-            System.out.println("Librarians cannot borrow books under a student profile configuration.");
+            JOptionPane.showMessageDialog(
+                null,
+                "Librarian cannot borrow book under the student profile configuration.",
+                "System Notice",
+                JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 
@@ -277,7 +329,12 @@ public class LibraryService
         targetBook.setAvailability(true);
         targetBook.setBorrowedId("None");
 
-        System.out.println("Success: Book record updated cleanly back into stock files.");
+        JOptionPane.showMessageDialog(
+            null,
+            "Success: Book record updated cleanly back into stock files.",
+            "Returned Successfully",
+            JOptionPane.INFORMATION_MESSAGE
+        );
 
         savedBooks();
         savedUsers();
