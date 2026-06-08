@@ -10,7 +10,8 @@ public class LoginForm extends JFrame
     private JLabel titleLabel;
     private JLabel userPromptLabel;
     private JTextField userIdField;
-    private JButton loginButton;
+    private JButton loginButton, exiButton, registerbButton;
+    private JComboBox<String> roleSelector;
 
     private LibraryService libraryService;
 
@@ -19,39 +20,84 @@ public class LoginForm extends JFrame
         this.libraryService = libraryService;
 
         setTitle("Library Management System - Login");
-        setSize(400, 200);
+        setSize(400, 25);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(null);
+        
+        setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10); 
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         titleLabel = new JLabel("Library Account Login", SwingConstants.CENTER);
-        titleLabel.setBounds(50, 20, 300, 30);
-        add(titleLabel);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        gbc.gridx = 0; 
+        gbc.gridy = 0; 
+        gbc.gridwidth = 2; 
+        add(titleLabel, gbc);
 
         userPromptLabel = new JLabel("Enter UserId: ");
-        userPromptLabel.setBounds(40, 70, 100, 25);
-        add(userPromptLabel);
+        gbc.gridx = 0; 
+        gbc.gridy = 1; 
+        gbc.gridwidth = 1;
+        add(userPromptLabel, gbc);
 
-        userIdField = new JTextField();
-        userIdField.setBounds(150, 70, 180, 25);
-        add(userIdField);
+        userIdField = new JTextField(15);
+        gbc.gridx = 1; 
+        gbc.gridy = 1; 
+        add(userIdField, gbc);
 
         loginButton = new JButton("Login");
-        loginButton.setBounds(150, 110, 100, 30);
-        add(loginButton);
+        gbc.gridx = 0; 
+        gbc.gridy = 2; 
+        gbc.gridwidth = 2; 
+        add(loginButton, gbc);
+
+        exiButton = new JButton("Exit");
+        gbc.gridx = 0; 
+        gbc.gridy = 2; 
+        gbc.gridwidth = 2; 
+        add(exiButton, gbc);
+
+        JSeparator separator = new JSeparator();
+        separator.setBounds(20, 160, 380, 10);
+        add(separator);
+
+
 
         loginButton.addActionListener(e -> {
             String userId = userIdField.getText().trim();
 
-            if (userId.isEmpty())
+            if (userId.isEmpty()) 
             {
                 JOptionPane.showMessageDialog(this, "Please Enter a User ID.");
                 return;
             }
 
+            boolean userExists = false;
+            for (com.library.models.User u : libraryService.getUserList()) 
+            {
+                if (u.getUserId().equals(userId)) 
+                {
+                    userExists = true;
+                    break;
+                }
+            }
+
+            if (!userExists) 
+            {
+                JOptionPane.showMessageDialog(this, "Access Denied: Invalid User ID.", "Login Error", JOptionPane.ERROR_MESSAGE);
+                return; 
+            }
+
             MainDashboard dashboard = new MainDashboard(libraryService, userId);
+            dashboard.updateTableDisplay();
             dashboard.setVisible(true);
             this.dispose();
         });
+
+        
+
+        exiButton.addActionListener(e -> System.exit(0));
     }
 }

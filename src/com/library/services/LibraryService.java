@@ -74,14 +74,7 @@ public class LibraryService
         {
             for (User u : user) 
             {
-                if (u instanceof Student)
-                {
-                    userData = u.toCSV();
-                }
-                else if (u instanceof Librarian)
-                {
-                    userData = u.toCSV();
-                }
+                userData = u.toCSV();
                 writer.write(userData);
                 writer.newLine();
             }
