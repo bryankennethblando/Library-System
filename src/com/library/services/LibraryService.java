@@ -332,4 +332,17 @@ public class LibraryService
         savedBooks();
         savedUsers();
     }
+
+    public void removeBook(String bookId)
+    {
+        for (Book b : book)
+        {
+            if (b.getId().equals(bookId))
+            {
+                book.remove(b);
+                savedBooks();
+                return;
+            }
+        }
+    }
 }

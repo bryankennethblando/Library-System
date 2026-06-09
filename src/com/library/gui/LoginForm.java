@@ -4,20 +4,23 @@ import java.awt.*;
 import javax.swing.*;
 
 import com.library.services.LibraryService;
+import com.library.models.*;
 
 public class LoginForm extends JFrame
 {
     private JLabel titleLabel;
     private JLabel userPromptLabel;
     private JTextField userIdField;
-    private JButton loginButton, exiButton, registerbButton;
-    private JComboBox<String> roleSelector;
+    private JButton loginButton, exitButton, signupButton;
 
     private LibraryService libraryService;
 
     public LoginForm(LibraryService libraryService)
     {
         this.libraryService = libraryService;
+
+        JPanel loginPanel = new JPanel(new GridBagLayout());
+        loginPanel.setBounds(20, 180, 380, 210);
 
         setTitle("Library Management System - Login");
         setSize(400, 25);
@@ -34,36 +37,47 @@ public class LoginForm extends JFrame
         gbc.gridx = 0; 
         gbc.gridy = 0; 
         gbc.gridwidth = 2; 
-        add(titleLabel, gbc);
+        loginPanel.add(titleLabel, gbc);
 
         userPromptLabel = new JLabel("Enter UserId: ");
         gbc.gridx = 0; 
         gbc.gridy = 1; 
         gbc.gridwidth = 1;
-        add(userPromptLabel, gbc);
+        loginPanel.add(userPromptLabel, gbc);
 
         userIdField = new JTextField(15);
         gbc.gridx = 1; 
         gbc.gridy = 1; 
-        add(userIdField, gbc);
+        loginPanel.add(userIdField, gbc);
 
         loginButton = new JButton("Login");
         gbc.gridx = 0; 
         gbc.gridy = 2; 
         gbc.gridwidth = 2; 
-        add(loginButton, gbc);
+        loginPanel.add(loginButton, gbc);
 
-        exiButton = new JButton("Exit");
+        signupButton = new JButton("Sign-up");
         gbc.gridx = 0; 
-        gbc.gridy = 2; 
-        gbc.gridwidth = 2; 
-        add(exiButton, gbc);
+        gbc.gridy = 3; 
+        gbc.gridwidth = 3; 
+        loginPanel.add(signupButton, gbc);
 
-        JSeparator separator = new JSeparator();
-        separator.setBounds(20, 160, 380, 10);
-        add(separator);
+        exitButton = new JButton("Exit");
+        gbc.gridx = 0; 
+        gbc.gridy = 4; 
+        gbc.gridwidth = 4; 
+        loginPanel.add(exitButton, gbc);
+      
+        JPanel mainContainer = new JPanel(new GridBagLayout());
+        GridBagConstraints mainGbc = new GridBagConstraints();
+        mainGbc.gridx = 0;
+        mainGbc.fill = GridBagConstraints.HORIZONTAL;
+        mainGbc.insets = new Insets(10, 10, 10, 10); 
 
+        mainGbc.gridy = 0;
+        mainContainer.add(loginPanel, mainGbc);
 
+        add(mainContainer);
 
         loginButton.addActionListener(e -> {
             String userId = userIdField.getText().trim();
@@ -90,14 +104,19 @@ public class LoginForm extends JFrame
                 return; 
             }
 
-            MainDashboard dashboard = new MainDashboard(libraryService, userId);
+            MainDashboard dashboard = new MainDashboard(libraryService, this, userId);
             dashboard.updateTableDisplay();
             dashboard.setVisible(true);
             this.dispose();
         });
 
-        
+        signupButton.addActionListener(e ->{
+            RegistrationForm registration = new RegistrationForm(libraryService, this);
+            registration.setVisible(true);
+            this.setVisible(false);
+        });
 
-        exiButton.addActionListener(e -> System.exit(0));
+        exitButton.addActionListener(e -> System.exit(0));
+
     }
 }

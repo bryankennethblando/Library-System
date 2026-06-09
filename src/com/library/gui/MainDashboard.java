@@ -15,22 +15,29 @@ public class MainDashboard extends JFrame
     private JTextField bookIdField;
     private JButton borrowButton;
     private JButton returnButton;
+    private JButton studentExitButton;
     private JPanel controlPanel;
     private JPanel studentPanel;
 
     // for librarian dashboard
     private JPanel adminPanel;
+    private JPanel adminRemovePanel;
     private JTextField newBookIdField;
     private JTextField newTitleField;
     private JTextField newAuthorField;
+    private JTextField removeBookField;
     private JButton addBookButton;
+    private JButton removeBookButton;
+    private JButton adminExitButton;
 
     private LibraryService libraryService;
+    private LoginForm login;
     private String currentUserId;
 
-    public MainDashboard(LibraryService libraryService, String loggedInUserId)
+    public MainDashboard(LibraryService libraryService, LoginForm login, String loggedInUserId)
     {
         this.libraryService = libraryService;
+        this.login = login;
         this.currentUserId = loggedInUserId;
 
         setTitle("Library Management Dashboard");
@@ -66,13 +73,21 @@ public class MainDashboard extends JFrame
         fieldWrapper.add(new JLabel("Target Book ID:"), BorderLayout.NORTH);
         fieldWrapper.add(bookIdField, BorderLayout.CENTER);
 
+        JPanel studentExitPanel = new JPanel(new GridLayout(4, 1, 0, 1));
+        studentExitPanel.setBorder(BorderFactory.createTitledBorder("Back to Login Menu"));
+
         borrowButton = new JButton("Borrow Book");
         returnButton = new JButton("Return Book");
+        studentExitButton = new JButton("Exit");
 
         studentPanel.add(fieldWrapper);
         studentPanel.add(borrowButton);
         studentPanel.add(returnButton);
+
+        studentExitPanel.add(studentExitButton);
+
         controlPanel.add(studentPanel);
+        controlPanel.add(studentExitPanel);
         add(controlPanel, BorderLayout.EAST);
 
         borrowButton.addActionListener(e -> {
@@ -113,10 +128,16 @@ public class MainDashboard extends JFrame
         adminPanel = new JPanel(new GridLayout(4, 1, 0, 10));
         adminPanel.setBorder(BorderFactory.createTitledBorder("Librarian Desk Admin"));
 
+        adminRemovePanel = new JPanel(new GridLayout(4, 1, 0, 10));
+        adminRemovePanel.setBorder(BorderFactory.createTitledBorder("Remove Book"));
+
         newBookIdField = new JTextField(15);
         newTitleField = new JTextField(15);
         newAuthorField = new JTextField(15);
+        removeBookField = new JTextField(15);
         addBookButton = new JButton("Add New Book");
+        removeBookButton = new JButton("Remove Book");
+        adminExitButton = new JButton("Exit");
 
         JPanel idWrap = new JPanel(new BorderLayout());
         idWrap.add(new JLabel("New Book ID:"), BorderLayout.NORTH);
@@ -130,16 +151,25 @@ public class MainDashboard extends JFrame
         authorWrap.add(new JLabel("Author Name:"), BorderLayout.NORTH);
         authorWrap.add(newAuthorField, BorderLayout.CENTER);
 
+        JPanel removeWrap= new JPanel(new BorderLayout());
+        removeWrap.add(new JLabel("Target Book ID:"), BorderLayout.NORTH);
+        removeWrap.add(removeBookField, BorderLayout.CENTER);
+
         adminPanel.add(idWrap);
         adminPanel.add(titleWrap);
         adminPanel.add(authorWrap);
         adminPanel.add(addBookButton);
+
+        adminRemovePanel.add(removeWrap);
+        adminRemovePanel.add(removeBookButton);
+        adminRemovePanel.add(adminExitButton);
 
         JPanel centerStack = new JPanel();
         centerStack.setLayout(new BoxLayout(centerStack, BoxLayout.Y_AXIS));
         centerStack.add(studentPanel);
         centerStack.add(Box.createVerticalStrut(15));
         centerStack.add(adminPanel);
+        centerStack.add(adminRemovePanel);
 
         controlPanel.add(centerStack, BorderLayout.NORTH);
         add(controlPanel, BorderLayout.EAST);
@@ -174,12 +204,55 @@ public class MainDashboard extends JFrame
 
             updateTableDisplay();
 
+            newBookIdField.setText("");
+            newTitleField.setText("");
+            newAuthorField.setText("");
+
             JOptionPane.showMessageDialog(
                 this,
-                "New added book is saved sucessfully.",
+                "New added book is saved successfully.",
                 "System Notification",
                 JOptionPane.INFORMATION_MESSAGE
             );
+        });
+
+        removeBookButton.addActionListener(e -> {
+            String inputBookId = removeBookField.getText().trim();
+
+            if (inputBookId.isEmpty())
+            {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Please fill in the Target Book Id to remove the book.",
+                    "System Notice",
+                    JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            libraryService.removeBook(inputBookId);
+            updateTableDisplay();
+
+            removeBookField.setText("");
+
+            JOptionPane.showMessageDialog(
+                this,
+                "Removing Book Id - " + inputBookId + " successfully.",
+                "System Notification",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+        });
+
+        // for student exit button back to login form
+        studentExitButton.addActionListener(e ->{
+            this.login.setVisible(true);
+            this.dispose();
+        });
+
+        // for librarian/admin exit button back to login form
+        adminExitButton.addActionListener(e ->{
+            this.login.setVisible(true);
+            this.dispose();
         });
 
         User logInUser = null;
@@ -225,13 +298,17 @@ public class MainDashboard extends JFrame
             newTitleField.setVisible(false);
             newAuthorField.setVisible(false);
             addBookButton.setVisible(false);
+            adminRemovePanel.setVisible(false);
+            adminExitButton.setVisible(false);
 
             // setting it true for student field
+            studentPanel.setVisible(true);
             borrowButton.setVisible(true);
             returnButton.setVisible(true);
+            studentExitButton.setVisible(true);
 
             Student s = (Student) user;
-            welcomeLabel.setText("Welcome, " + s.getName() + "- Student " +
+            welcomeLabel.setText("Welcome, " + s.getName() + "- Student || " +
                             "Borrowed: " + s.getBorrowedCount() + "/3");
         }
         else if (user instanceof Librarian)
@@ -242,11 +319,13 @@ public class MainDashboard extends JFrame
             newTitleField.setVisible(true);
             newAuthorField.setVisible(true);
             addBookButton.setVisible(true);
+            adminExitButton.setVisible(true);
 
             // setting it false for student fields
             studentPanel.setVisible(false);
             borrowButton.setVisible(false);
             returnButton.setVisible(false);
+            studentExitButton.setVisible(false);
             
             Librarian l = (Librarian) user;
             welcomeLabel.setText("Welcome, " + l.getName() + "- Librarian Desk ");
