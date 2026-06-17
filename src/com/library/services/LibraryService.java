@@ -16,12 +16,6 @@ public class LibraryService
     private final String usersPath = "data/user.csv";
     private final String booksPath = "data/book.csv";
 
-    // constructor
-    public LibraryService()
-    {
-        // Keeps collections initialized empty, for file load inputs
-    }
-
     // to add book or user object into their respective arraylist
     public void addUser(User u) {user.add(u);}
     public void addBook(Book b) {book.add(b);}
@@ -121,13 +115,6 @@ public class LibraryService
                 // adding the loaded data onto the book arraylist
                 addBook(bookData);
             }
-            JOptionPane.showMessageDialog(
-                null,
-                "💾 Data loaded successfully.",
-                "Sysstem Update",
-                JOptionPane.INFORMATION_MESSAGE
-            );
-
         }
         catch (Exception e) 
         {
@@ -169,12 +156,6 @@ public class LibraryService
 
                 }
             }
-            JOptionPane.showMessageDialog(
-                null,
-                "💾 Data loaded successfully.",
-                "System Update",
-                JOptionPane.INFORMATION_MESSAGE
-            );
         } 
         catch (Exception e) 
         {

@@ -1,6 +1,8 @@
 package com.library.gui;
 
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import javax.swing.*;
 
 import com.library.services.LibraryService;
@@ -19,65 +21,103 @@ public class LoginForm extends JFrame
     {
         this.libraryService = libraryService;
 
-        JPanel loginPanel = new JPanel(new GridBagLayout());
-        loginPanel.setBounds(20, 180, 380, 210);
-
+        // --- 1. Window Constraints ---
         setTitle("Library Management System - Login");
-        setSize(400, 25);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        
-        setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10); 
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        setResizable(true); 
+        setSize(600, 550); // Balanced starting size
 
+        // --- 2. Layout Configurations ---
+        // mainContainer holds the loginCard centered on full screen
+        JPanel mainContainer = new JPanel(new GridBagLayout());
+        mainContainer.setBackground(new Color(225, 230, 235)); // Slightly darker background
+
+        JPanel loginCard = new JPanel(new GridBagLayout());
+        loginCard.setBackground(Color.WHITE); // White card overlay effect
+        loginCard.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(200, 205, 210), 1),
+            BorderFactory.createEmptyBorder(30, 40, 30, 40)
+        ));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL; // Stretch wide, but NOT tall
+        gbc.insets = new Insets(12, 12, 12, 12);
+        gbc.weightx = 1.0;
+        gbc.weighty = 0.0; // Prevent vertical auto-distortion
+
+        // Title Header
         titleLabel = new JLabel("Library Account Login", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
         gbc.gridx = 0; 
         gbc.gridy = 0; 
         gbc.gridwidth = 2; 
-        loginPanel.add(titleLabel, gbc);
+        loginCard.add(titleLabel, gbc);
 
-        userPromptLabel = new JLabel("Enter UserId: ");
+        // Input Row
+        gbc.gridwidth = 1;
+
+        userPromptLabel = new JLabel("Enter User ID: ", SwingConstants.RIGHT);
         gbc.gridx = 0; 
         gbc.gridy = 1; 
-        gbc.gridwidth = 1;
-        loginPanel.add(userPromptLabel, gbc);
+        loginCard.add(userPromptLabel, gbc);
 
         userIdField = new JTextField(15);
         gbc.gridx = 1; 
         gbc.gridy = 1; 
-        loginPanel.add(userIdField, gbc);
+        loginCard.add(userIdField, gbc);
+
+        // Action Buttons
+        gbc.gridx = 0; 
+        gbc.gridwidth = 2; 
 
         loginButton = new JButton("Login");
-        gbc.gridx = 0; 
         gbc.gridy = 2; 
-        gbc.gridwidth = 2; 
-        loginPanel.add(loginButton, gbc);
+        loginCard.add(loginButton, gbc);
 
         signupButton = new JButton("Sign-up");
-        gbc.gridx = 0; 
         gbc.gridy = 3; 
-        gbc.gridwidth = 3; 
-        loginPanel.add(signupButton, gbc);
+        loginCard.add(signupButton, gbc);
 
-        exitButton = new JButton("Exit");
-        gbc.gridx = 0; 
+        exitButton = new JButton("Exit Application");
         gbc.gridy = 4; 
-        gbc.gridwidth = 4; 
-        loginPanel.add(exitButton, gbc);
+        loginCard.add(exitButton, gbc);
       
-        JPanel mainContainer = new JPanel(new GridBagLayout());
-        GridBagConstraints mainGbc = new GridBagConstraints();
-        mainGbc.gridx = 0;
-        mainGbc.fill = GridBagConstraints.HORIZONTAL;
-        mainGbc.insets = new Insets(10, 10, 10, 10); 
-
-        mainGbc.gridy = 0;
-        mainContainer.add(loginPanel, mainGbc);
-
+        // Center the login card inside the main window container
+        mainContainer.add(loginCard, new GridBagConstraints());
         add(mainContainer);
+        setLocationRelativeTo(null);
+        
+        // --- 3. DYNAMIC FONT SCALING ENGINE ---
+        // This watches the window size and scales typography instantly on resize/maximize
+       this.addComponentListener(new ComponentAdapter() 
+       {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                int benchmark = Math.min(getWidth(), getHeight());
+                int dynamicFont = Math.max(14, benchmark / 32); 
+
+                // 1. Scale Typography Cleanly
+                titleLabel.setFont(new Font("Segoe UI", Font.BOLD, (int)(dynamicFont * 1.6)));
+                userPromptLabel.setFont(new Font("Segoe UI", Font.BOLD, dynamicFont));
+                userIdField.setFont(new Font("Segoe UI", Font.PLAIN, dynamicFont));
+                loginButton.setFont(new Font("Segoe UI", Font.BOLD, dynamicFont));
+                signupButton.setFont(new Font("Segoe UI", Font.BOLD, dynamicFont));
+                exitButton.setFont(new Font("Segoe UI", Font.BOLD, dynamicFont));
+
+                // 2. Control Element Heights Proportionally (Prevents giant distorted boxes)
+                int inputHeight = (int)(dynamicFont * 2.2);
+                int buttonHeight = (int)(dynamicFont * 2.6);
+                int cardWidth = (int)(benchmark * 0.75);
+
+                userIdField.setPreferredSize(new Dimension(150, inputHeight));
+                loginButton.setPreferredSize(new Dimension(cardWidth, buttonHeight));
+                signupButton.setPreferredSize(new Dimension(cardWidth, buttonHeight));
+                exitButton.setPreferredSize(new Dimension(cardWidth, buttonHeight));
+                
+                // Force layout update with new bounds
+                loginCard.setPreferredSize(new Dimension(cardWidth, (int)(benchmark * 0.7)));
+                loginCard.revalidate();
+            }
+        });
 
         loginButton.addActionListener(e -> {
             String userId = userIdField.getText().trim();

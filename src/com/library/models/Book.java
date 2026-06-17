@@ -18,7 +18,7 @@ public class Book
         this.borrowerId = "None";
     }
 
-    // setter
+    // setters
     public void setAvailability(boolean isAvailable) {this.isAvailable = isAvailable;}
     public void setBorrowedId(String borrowedId) {this.borrowerId = borrowedId;}
 

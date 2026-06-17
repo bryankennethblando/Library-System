@@ -2,150 +2,173 @@ package com.library.gui;
 
 import javax.swing.*;
 import java.awt.*;
-
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import com.library.services.LibraryService;
 import com.library.models.*;
 
-
-public class RegistrationForm extends JFrame
+public class RegistrationForm extends JFrame 
 {
     private JButton exitButton;
     private JButton registerButton;
     private JComboBox<String> roleSelector;
+    private JLabel regTitleLabel, idLabel, nameLabel, roleLabel;
+    private JTextField regId, regName;
 
     private LibraryService libraryService;
     private LoginForm login;
 
-    public RegistrationForm(LibraryService libraryService, LoginForm login)
+    public RegistrationForm(LibraryService libraryService, LoginForm login) 
     {
         this.libraryService = libraryService;
         this.login = login;
 
+        // --- 1. Window Configuration ---
         setTitle("Library Management System - Register");
-        setSize(400, 500); 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setResizable(true); 
+        setSize(600, 600); // Balanced starting size
 
-        JPanel registrationPanel = new JPanel(new GridBagLayout());
-        registrationPanel.setBounds(20, 180, 380, 210);
+        // --- 2. Structural Containers ---
+        JPanel mainContainer = new JPanel(new GridBagLayout());
+        mainContainer.setBackground(new Color(225, 230, 235)); // Universal accent gray background
 
-        GridBagConstraints gbc1 = new GridBagConstraints();
-        gbc1.insets = new Insets(5, 5, 5, 5); 
-        gbc1.fill = GridBagConstraints.HORIZONTAL;
+        JPanel regCard = new JPanel(new GridBagLayout());
+        regCard.setBackground(Color.WHITE); // White form card block layout
+        regCard.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(200, 205, 210), 1),
+            BorderFactory.createEmptyBorder(30, 40, 30, 40)
+        ));
 
-        JLabel regTitleLabel = new JLabel("Create New Library Account", SwingConstants.CENTER);
-        regTitleLabel.setFont(new Font("Arial", Font.BOLD, 13));
-        gbc1.gridx = 0; 
-        gbc1.gridy = 0; 
-        gbc1.gridwidth = 2;
-        registrationPanel.add(regTitleLabel, gbc1);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL; 
+        gbc.insets = new Insets(12, 12, 12, 12);
+        gbc.weightx = 1.0;
+        gbc.weighty = 0.0;
 
-        JLabel id = new JLabel("Enter ID:");
-        gbc1.gridx = 0; 
-        gbc1.gridy = 1; 
-        gbc1.gridwidth = 1;
-        registrationPanel.add(id, gbc1);
+        // Header Title
+        regTitleLabel = new JLabel("Create New Library Account", SwingConstants.CENTER);
+        gbc.gridx = 0; 
+        gbc.gridy = 0; 
+        gbc.gridwidth = 2; 
+        gbc.insets = new Insets(10, 12, 25, 12);
+        regCard.add(regTitleLabel, gbc);
 
-        JTextField regId = new JTextField();
-        gbc1.gridx = 1; 
-        gbc1.gridy = 1;
-        registrationPanel.add(regId, gbc1);
+        // Reset spacing constraints for data inputs
+        gbc.insets = new Insets(8, 12, 8, 12);
+        gbc.gridwidth = 1;
 
-        JLabel name = new JLabel("Enter Full Name:");
-        gbc1.gridx = 0; 
-        gbc1.gridy = 2;
-        registrationPanel.add(name, gbc1);
+        // ID Form row
+        idLabel = new JLabel("Enter ID:", SwingConstants.RIGHT);
+        gbc.gridx = 0; 
+        gbc.gridy = 1; 
+        regCard.add(idLabel, gbc);
 
-        JTextField regName = new JTextField();
-        gbc1.gridx = 1; 
-        gbc1.gridy = 2;
-        registrationPanel.add(regName, gbc1);
+        regId = new JTextField();
+        gbc.gridx = 1; 
+        gbc.gridy = 1;
+        regCard.add(regId, gbc);
 
-        JLabel role = new JLabel("Account Type:");
-        gbc1.gridx = 0; 
-        gbc1.gridy = 3;
-        registrationPanel.add(role, gbc1);
+        // Name Form row
+        nameLabel = new JLabel("Enter Full Name:", SwingConstants.RIGHT);
+        gbc.gridx = 0; 
+        gbc.gridy = 2;
+        regCard.add(nameLabel, gbc);
 
-        // Dropdown options matching the system user:
+        regName = new JTextField();
+        gbc.gridx = 1; 
+        gbc.gridy = 2;
+        regCard.add(regName, gbc);
+
+        // Role Selector Dropdown Row
+        roleLabel = new JLabel("Account Type:", SwingConstants.RIGHT);
+        gbc.gridx = 0; 
+        gbc.gridy = 3;
+        regCard.add(roleLabel, gbc);
+
         String[] roles = {"Student", "Librarian"};
         roleSelector = new JComboBox<>(roles);
-        gbc1.gridx = 1; 
-        gbc1.gridy = 3;
-        registrationPanel.add(roleSelector, gbc1);
+        gbc.gridx = 1; 
+        gbc.gridy = 3;
+        regCard.add(roleSelector, gbc);
+
+        // Action Menu Options
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
 
         registerButton = new JButton("Register");
-        gbc1.gridx = 0;
-        gbc1.gridy = 4; 
-        gbc1.gridwidth = 2;
-        registrationPanel.add(registerButton, gbc1);
+        gbc.gridy = 4; 
+        regCard.add(registerButton, gbc);
 
-        exitButton = new JButton("Exit");
-        gbc1.gridx = 0;
-        gbc1.gridy = 5; 
-        gbc1.gridwidth = 3;
-        registrationPanel.add(exitButton, gbc1);
+        exitButton = new JButton("Back to Login Menu");
+        gbc.gridy = 5; 
+        regCard.add(exitButton, gbc);
 
-        JPanel mainContainer = new JPanel(new GridBagLayout());
-        GridBagConstraints mainGbc = new GridBagConstraints();
-        mainGbc.gridx = 0;
-        mainGbc.fill = GridBagConstraints.HORIZONTAL;
-        mainGbc.insets = new Insets(10, 10, 10, 10); 
-
-        mainGbc.gridy = 0;
-        mainContainer.add(registrationPanel, mainGbc);
-
+        // Render card centered inside screen bounds
+        mainContainer.add(regCard, new GridBagConstraints());
         add(mainContainer);
+        setLocationRelativeTo(null);
 
-        registerButton.addActionListener(e ->{
+        // --- 3. RESPONSIVE TYPOGRAPHY SCALING ENGINE ---
+        this.addComponentListener(new ComponentAdapter() 
+        {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                int benchmark = Math.min(getWidth(), getHeight());
+                int dynamicFont = Math.max(14, benchmark / 32); 
+
+                // Scaling fonts
+                regTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, (int)(dynamicFont * 1.5)));
+                idLabel.setFont(new Font("Segoe UI", Font.BOLD, dynamicFont));
+                nameLabel.setFont(new Font("Segoe UI", Font.BOLD, dynamicFont));
+                roleLabel.setFont(new Font("Segoe UI", Font.BOLD, dynamicFont));
+                regId.setFont(new Font("Segoe UI", Font.PLAIN, dynamicFont));
+                regName.setFont(new Font("Segoe UI", Font.PLAIN, dynamicFont));
+                roleSelector.setFont(new Font("Segoe UI", Font.PLAIN, dynamicFont));
+                registerButton.setFont(new Font("Segoe UI", Font.BOLD, dynamicFont));
+                exitButton.setFont(new Font("Segoe UI", Font.BOLD, dynamicFont));
+
+                // Control component heights cleanly
+                int inputHeight = (int)(dynamicFont * 2.2);
+                int buttonHeight = (int)(dynamicFont * 2.6);
+                int cardWidth = (int)(benchmark * 0.78);
+
+                regId.setPreferredSize(new Dimension(150, inputHeight));
+                regName.setPreferredSize(new Dimension(150, inputHeight));
+                roleSelector.setPreferredSize(new Dimension(150, inputHeight));
+                registerButton.setPreferredSize(new Dimension(cardWidth, buttonHeight));
+                exitButton.setPreferredSize(new Dimension(cardWidth, buttonHeight));
+                
+                regCard.setPreferredSize(new Dimension(cardWidth, (int)(benchmark * 0.75)));
+                regCard.revalidate();
+            }
+        });
+
+        // --- 4. System Logic Drivers ---
+        registerButton.addActionListener(e -> {
             String inputId = regId.getText().trim();
             String inputName = regName.getText().trim();
             String selectedRole = (String) roleSelector.getSelectedItem();
 
-            if (inputId.isEmpty() || inputName.isEmpty())
+            if (inputId.isEmpty() || inputName.isEmpty()) 
             {
-                JOptionPane.showMessageDialog(
-                    this,
-                    "Please fill in all the registration field",
-                    "Validation Warning",
-                    JOptionPane.WARNING_MESSAGE
-                );
+                JOptionPane.showMessageDialog(this, "Please fill in all the registration fields.", "Validation Warning", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            for (User u : libraryService.getUserList())
+            for (User u : libraryService.getUserList()) 
             {
-                if (u.getUserId().equals(inputId))
-                {
-                    JOptionPane.showMessageDialog(
-                        this,
-                        "Error: User Id " + inputId + " is already taken.",
-                        "Registration Error",
-                        JOptionPane.ERROR_MESSAGE
-                    );
+                if (u.getUserId().equals(inputId)) {
+                    JOptionPane.showMessageDialog(this, "Error: User ID " + inputId + " is already taken.", "Registration Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             }
 
-            User newUser;
-            if (selectedRole.equals("Student"))
-            {
-                newUser = new Student(inputId, inputName);
-            }
-            else
-            {
-                newUser = new Librarian(inputId, inputName, "Staff-" + inputId, 1);
-            }
-
+            User newUser = selectedRole.equals("Student") ? new Student(inputId, inputName) : new Librarian(inputId, inputName, "Staff-" + inputId, 1);
             libraryService.addUser(newUser);
             libraryService.savedUsers();
 
-            JOptionPane.showMessageDialog(
-                this,
-                "Account successfully created. You can now log-in using this userId.",
-                "Registration Complete",
-                JOptionPane.INFORMATION_MESSAGE
-            );
-
+            JOptionPane.showMessageDialog(this, "Account successfully created. You can now log-in.", "Registration Complete", JOptionPane.INFORMATION_MESSAGE);
             regId.setText("");
             regName.setText("");
         });
